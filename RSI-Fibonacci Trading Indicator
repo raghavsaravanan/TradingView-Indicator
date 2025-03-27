@@ -1,0 +1,78 @@
+//@version=6
+indicator("RSI + Fibonacci + Support/Resistance", overlay=true)
+
+// Define the RSI parameters
+rsi_period = 14
+rsi_value = ta.rsi(close, rsi_period)
+oversold = 30
+overbought = 70
+
+// Plot the RSI as a semi-transparent line on the price chart
+plot(rsi_value, color=color.new(color.blue, 70), title="RSI", linewidth=2, style=plot.style_line)
+
+// Plot horizontal lines for the overbought and oversold levels behind the candles
+plot(oversold, color=color.new(color.green, 80), linewidth=1, title="Oversold", style=plot.style_linebr)
+plot(overbought, color=color.new(color.red, 80), linewidth=1, title="Overbought", style=plot.style_linebr)
+
+// Add labels for RSI levels (still visible on the chart)
+label.new(bar_index, oversold, "Oversold", style=label.style_label_left, color=color.green, textcolor=color.white, size=size.small)
+label.new(bar_index, overbought, "Overbought", style=label.style_label_left, color=color.red, textcolor=color.white, size=size.small)
+
+// Fibonacci Retracement Levels
+var float fib_high = na
+var float fib_low = na
+
+// Detect the most recent high and low
+if (na(fib_high) or close > fib_high)
+    fib_high := close
+if (na(fib_low) or close < fib_low)
+    fib_low := close
+
+// Calculate Fibonacci levels
+fib_0 = fib_low
+fib_236 = fib_low + (fib_high - fib_low) * 0.236
+fib_382 = fib_low + (fib_high - fib_low) * 0.382
+fib_50 = fib_low + (fib_high - fib_low) * 0.5
+fib_618 = fib_low + (fib_high - fib_low) * 0.618
+fib_100 = fib_high
+
+// Plot Fibonacci retracement levels with labels
+plot(fib_0, color=color.red, linewidth=1, title="Fib 0%")
+plot(fib_236, color=color.orange, linewidth=1, title="Fib 23.6%")
+plot(fib_382, color=color.yellow, linewidth=1, title="Fib 38.2%")
+plot(fib_50, color=color.green, linewidth=1, title="Fib 50%")
+plot(fib_618, color=color.blue, linewidth=1, title="Fib 61.8%")
+plot(fib_100, color=color.purple, linewidth=1, title="Fib 100%")
+
+// Adding labels for Fibonacci levels
+label.new(bar_index, fib_0, "Fib 0%", style=label.style_label_left, color=color.red, textcolor=color.white, size=size.small)
+label.new(bar_index, fib_236, "Fib 23.6%", style=label.style_label_left, color=color.orange, textcolor=color.white, size=size.small)
+label.new(bar_index, fib_382, "Fib 38.2%", style=label.style_label_left, color=color.yellow, textcolor=color.white, size=size.small)
+label.new(bar_index, fib_50, "Fib 50%", style=label.style_label_left, color=color.green, textcolor=color.white, size=size.small)
+label.new(bar_index, fib_618, "Fib 61.8%", style=label.style_label_left, color=color.blue, textcolor=color.white, size=size.small)
+label.new(bar_index, fib_100, "Fib 100%", style=label.style_label_left, color=color.purple, textcolor=color.white, size=size.small)
+
+// Detect Support and Resistance Zones
+length = 30
+resistance = ta.highest(high, length)
+support = ta.lowest(low, length)
+
+// Plot the Support and Resistance levels
+plot(resistance, color=color.red, linewidth=2, title="Resistance Zone")
+plot(support, color=color.green, linewidth=2, title="Support Zone")
+
+// Adding labels for Support and Resistance
+label.new(bar_index, resistance, "Resistance", style=label.style_label_left, color=color.red, textcolor=color.white, size=size.small)
+label.new(bar_index, support, "Support", style=label.style_label_left, color=color.green, textcolor=color.white, size=size.small)
+
+// Display a buy signal when RSI goes below 30 (oversold)
+plotshape(series=rsi_value < oversold, location=location.belowbar, color=color.green, style=shape.labelup, title="Buy Signal", text="BUY")
+
+// Display a sell signal when RSI goes above 70 (overbought)
+plotshape(series=rsi_value > overbought, location=location.abovebar, color=color.red, style=shape.labeldown, title="Sell Signal", text="SELL")
+
+// Adding labels for EMA
+ema_length = 50
+ema_value = ta.ema(close, ema_length)
+plot(ema_value, color=color.blue, linewidth=2, title="50-period EMA")
+label.new(bar_index, ema_value, "50 EMA", style=label.style_label_left, color=color.blue, textcolor=color.white, size=size.small)
